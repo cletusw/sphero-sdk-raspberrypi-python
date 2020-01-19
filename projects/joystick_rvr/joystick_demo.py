@@ -4,6 +4,11 @@ from signal import signal, SIGINT
 import sys
 from time import sleep
 
+JOYSTICK_CENTER = 65535 / 2
+#DEADBAND_RADIUS = JOYSTICK_CENTER / 10
+DEADBAND_RADIUS = JOYSTICK_CENTER - 1000
+DEADBAND_MIN = JOYSTICK_CENTER - DEADBAND_RADIUS
+DEADBAND_MAX = JOYSTICK_CENTER + DEADBAND_RADIUS
 devicePath = '/dev/input/event2'
 gamepad: InputDevice = None
 
@@ -40,7 +45,14 @@ def main():
             waitForGamepad()
             for event in gamepad.read_loop():
                 if event.type == ecodes.EV_ABS:
-                    print(event)
+                    if event.code == ecodes.ABS_X and event.value < DEADBAND_MIN:
+                        print("Go left")
+                    elif event.code == ecodes.ABS_X and event.value > DEADBAND_MAX:
+                        print("Go right")
+                    elif event.code == ecodes.ABS_Y and event.value < DEADBAND_MIN:
+                        print("Go up")
+                    elif event.code == ecodes.ABS_Y and event.value > DEADBAND_MAX:
+                        print("Go down")
         except OSError:
             gamepad = None
 
