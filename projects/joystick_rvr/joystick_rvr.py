@@ -68,6 +68,7 @@ def drive():
     #print("Drive", r, theta, rAfterDeadzone, rMappedToMotorSpeed)
 
     if r < DEADBAND_RADIUS:
+        #print("Stop")
         rvr.raw_motors(
             left_mode=RawMotorModesEnum.off.value,
             left_speed=0,
@@ -88,6 +89,24 @@ def drive():
         magnitude = interp(theta, [-pi/2, 0], [1, -1])
         rvr.raw_motors(
             left_mode=RawMotorModesEnum.forward.value,
+            left_speed=int(rMappedToMotorSpeed),
+            right_mode=RawMotorModesEnum.forward.value if magnitude >= 0 else RawMotorModesEnum.reverse.value,
+            right_speed=int(abs(magnitude * rMappedToMotorSpeed)),
+        )
+    elif theta > 0 and theta <= pi / 2:
+        # DOWN & RIGHT
+        magnitude = interp(theta, [0, pi/2], [1, -1])
+        rvr.raw_motors(
+            left_mode=RawMotorModesEnum.forward.value if magnitude >= 0 else RawMotorModesEnum.reverse.value,
+            left_speed=int(abs(magnitude * rMappedToMotorSpeed)),
+            right_mode=RawMotorModesEnum.reverse.value,
+            right_speed=int(rMappedToMotorSpeed),
+        )
+    elif theta > pi / 2:
+        # DOWN & LEFT
+        magnitude = interp(theta, [pi/2, pi], [-1, 1])
+        rvr.raw_motors(
+            left_mode=RawMotorModesEnum.reverse.value,
             left_speed=int(rMappedToMotorSpeed),
             right_mode=RawMotorModesEnum.forward.value if magnitude >= 0 else RawMotorModesEnum.reverse.value,
             right_speed=int(abs(magnitude * rMappedToMotorSpeed)),
