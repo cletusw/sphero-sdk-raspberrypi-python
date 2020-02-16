@@ -12,4 +12,5 @@
 *.py~
 *.py.un~
 *.DS_Store
+*.swp
 
