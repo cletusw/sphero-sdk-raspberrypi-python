@@ -1,39 +1,51 @@
+import asyncio
 from evdev import InputDevice, categorize, ecodes
 from os import path
-from signal import signal, SIGINT
 import sys
-from time import sleep, time
+from mock import AsyncMock
+from raw_drive import drive
 
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '../../')))
-from sphero_sdk import SpheroRvrObserver, RawMotorModesEnum
-
-from raw_drive import drive
+from sphero_sdk import SerialAsyncDal, SpheroRvrAsync, RawMotorModesEnum
 
 JOYSTICK_MAX = 65535
 JOYSTICK_CENTER = JOYSTICK_MAX / 2
-DEADBAND_RADIUS = JOYSTICK_CENTER / 8
+DEADBAND_RADIUS = JOYSTICK_CENTER / 6
 MAX_MAGNITUDE = JOYSTICK_CENTER
 
-MAX_SPEED = 90
+MAX_SPEED = 180
 MIN_SPEED = 40
 
-RVR_FRAME_PERIOD_SEC = 0.1
+RVR_FRAME_PERIOD_SEC = 0.01
 
 devicePath = '/dev/input/event0'
 gamepad: InputDevice = None
 
-rvr = SpheroRvrObserver()
+loop = asyncio.get_event_loop()
+try:
+    rvr = SpheroRvrAsync(
+        dal = SerialAsyncDal(
+            loop
+        )
+    )
+except asyncio.TimeoutError:
+    print("Timed out waiting for SpheroRvrAsync. Using mock instead.")
+    rvr = AsyncMock(SpheroRvrAsync)
 
 x = 0 # -MAX_MAGNITUDE -> MAX_MAGNITUDE
 y = 0
 
-def sigIntHandler(sig, frame):
-    print("Exiting")
-    rvr.close()
-    sys.stderr.close() # Ignore any lingering exceptions
-    sys.exit(0)
+def resetJoystick():
+    global x
+    global y
 
-def waitForGamepad():
+    x = 0
+    y = 0
+
+def logJoystick():
+    print(f'x: {x}, y: {y}')
+
+async def waitForGamepad():
     global gamepad
 
     if gamepad:
@@ -43,7 +55,7 @@ def waitForGamepad():
         print("Waiting for controller...")
 
     while not path.exists(devicePath):
-        sleep(0.1)
+        await asyncio.sleep(0.1)
 
     while True:
         try:
@@ -51,7 +63,7 @@ def waitForGamepad():
             print(gamepad)
             break
         except PermissionError:
-            sleep(0.1)
+            await asyncio.sleep(0.1)
 
 def handleEvent(event):
     global x
@@ -64,37 +76,49 @@ def handleEvent(event):
         elif event.code == ecodes.ABS_Y:
             y = event.value - JOYSTICK_CENTER
 
-def main():
-    global gamepad
+async def handleRvr():
+    await rvr.wake()
+    await rvr.reset_yaw()
 
-    rvr.wake()
-    sleep(2)
-    rvr.reset_yaw()
+async def main():
+    global gamepad
 
     while True:
         try:
-            waitForGamepad()
+            await waitForGamepad()
 
             while True:
             #for event in gamepad.read_loop():
                 try:
-                    #print("Reading")
                     for event in gamepad.read():
                         handleEvent(event)
                 except BlockingIOError:
                     pass # No events available
 
-                drive(x, y, rvr, MIN_SPEED, MAX_SPEED, DEADBAND_RADIUS, MAX_MAGNITUDE)
-                sleep(RVR_FRAME_PERIOD_SEC)
+                #logJoystick()
+                await drive(x, y, rvr, MIN_SPEED, MAX_SPEED, DEADBAND_RADIUS, MAX_MAGNITUDE)
+                await asyncio.sleep(RVR_FRAME_PERIOD_SEC)
 
         except OSError as e:
+            resetJoystick()
             print(e)
             gamepad = None
 
 if __name__ == '__main__':
-    signal(SIGINT, sigIntHandler)
     try:
-        main()
+        print("Starting main loop")
+        loop.run_until_complete(
+            main()
+        )
+
+    except KeyboardInterrupt:
+        print("\nExiting")
+
+        loop.run_until_complete(
+            rvr.close()
+        )
+
     finally:
-        rvr.close()
+        if loop.is_running():
+            loop.close()
 

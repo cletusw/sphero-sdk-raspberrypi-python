@@ -9,7 +9,7 @@ JOYSTICK_CENTER = 65535 / 2
 DEADBAND_RADIUS = JOYSTICK_CENTER - 1000
 DEADBAND_MIN = JOYSTICK_CENTER - DEADBAND_RADIUS
 DEADBAND_MAX = JOYSTICK_CENTER + DEADBAND_RADIUS
-devicePath = '/dev/input/event2'
+devicePath = '/dev/input/event0'
 gamepad: InputDevice = None
 
 def sigIntHandler(sig, frame):
