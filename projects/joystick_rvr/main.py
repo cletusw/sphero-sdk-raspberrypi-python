@@ -23,6 +23,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("\nExiting")
         rvr.close()
+        panTilt.cleanup()
 
     finally:
         if loop.is_running():

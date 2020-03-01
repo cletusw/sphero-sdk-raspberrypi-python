@@ -1,11 +1,9 @@
 import asyncio
-from gamepad import JOYSTICK_MAX
+from gamepad import JOYSTICK_MAX, DEADBAND_RADIUS
 from mock import AsyncMock
 from os import path
 from raw_drive import drive
 import sys
-
-DEADBAND_RADIUS = JOYSTICK_MAX / 6
 
 MAX_SPEED = 100
 MIN_SPEED = 40
