@@ -24,15 +24,35 @@ try:
             loop
         )
     )
+    loop.run_until_complete(
+        rvr.get_board_revision(timeout = 0.01)
+    )
+    print("Connected to RVR")
 except asyncio.TimeoutError:
     print("Timed out waiting for SpheroRvrAsync. Using mock instead.")
     rvr = AsyncMock(SpheroRvrAsync)
+
+async def waitForRvr():
+    notified = False
+
+    while True:
+        try:
+            await rvr.get_board_revision(timeout = 0.01)
+            if notified == True:
+                notified = False
+                print("RVR connected")
+        except asyncio.TimeoutError:
+            if notified == False:
+                notified = True
+                print("RVR disconnected")
+            await asyncio.sleep(RVR_FRAME_PERIOD_SEC)
 
 async def handleRvr():
     await rvr.wake()
     await rvr.reset_yaw()
 
     while True:
+        await waitForRvr()
         await drive(gamepad.x, gamepad.y, rvr, MIN_SPEED, MAX_SPEED, DEADBAND_RADIUS, JOYSTICK_MAX)
         await asyncio.sleep(RVR_FRAME_PERIOD_SEC)
 
