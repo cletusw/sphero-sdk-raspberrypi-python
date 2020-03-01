@@ -16,9 +16,11 @@ class Gamepad:
         self.gamepad: InputDevice = None
         self.x = 0 # -JOYSTICK_MAX -> JOYSTICK_MAX
         self.y = 0
+        self.z = 0
+        self.rz = 0
 
     def log(self):
-        print(f'x: {self.x}, y: {self.y}')
+        print(f'x: {self.x}, y: {self.y}, z: {self.z}, rz: {self.rz}')
 
     async def waitForGamepad(self):
         if self.gamepad:
@@ -45,6 +47,10 @@ class Gamepad:
                 self.x = event.value - EVDEV_CENTER
             elif event.code == ecodes.ABS_Y:
                 self.y = event.value - EVDEV_CENTER
+            elif event.code == ecodes.ABS_Z:
+                self.z = event.value - EVDEV_CENTER
+            elif event.code == ecodes.ABS_RZ:
+                self.rz = event.value - EVDEV_CENTER
 
     async def runLoop(self):
         while True:
