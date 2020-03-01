@@ -33,7 +33,7 @@ class Gamepad:
         while True:
             try:
                 self.gamepad = InputDevice(self.devicePath)
-                print("Found: ", self.gamepad)
+                print("Gamepad connected: ", self.gamepad)
                 break
             except PermissionError:
                 await asyncio.sleep(0.1)
