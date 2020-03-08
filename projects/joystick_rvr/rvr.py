@@ -2,7 +2,8 @@ import asyncio
 from gamepad import JOYSTICK_MAX, DEADBAND_RADIUS
 from mock import AsyncMock
 from os import path
-from raw_drive import drive
+# from raw_drive import drive
+from fps_drive import fpsDrive
 import sys
 
 MAX_SPEED = 100
@@ -60,6 +61,8 @@ class Rvr:
         await self.rvr.reset_yaw()
 
         while True:
-            await drive(gamepad.x, gamepad.y, self.rvr, MIN_SPEED, MAX_SPEED, DEADBAND_RADIUS, JOYSTICK_MAX)
+            # await drive(gamepad.x, gamepad.y, self.rvr, MIN_SPEED, MAX_SPEED, DEADBAND_RADIUS, JOYSTICK_MAX)
+            await fpsDrive(gamepad.x, gamepad.y, gamepad.z, self.rvr, MIN_SPEED, MAX_SPEED, DEADBAND_RADIUS, JOYSTICK_MAX)
             await asyncio.sleep(RVR_FRAME_PERIOD_SEC)
-            await self.waitForRvr(expectAlreadyConnected = True)
+            # TODO throttle next line and/or move to separate corountine since it causes troubles running at this high rate
+            # await self.waitForRvr(expectAlreadyConnected = True)

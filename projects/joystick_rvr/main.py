@@ -9,9 +9,10 @@ gamepad = Gamepad('/dev/input/event0')
 panTilt = PanTilt()
 
 async def main():
-    await asyncio.gather(gamepad.runLoop(),
+    await asyncio.gather(
+        gamepad.runLoop(),
         rvr.runLoop(gamepad),
-        panTilt.runLoop(gamepad)
+        panTilt.runLoop(gamepad, fps = True)
     )
 
 if __name__ == '__main__':

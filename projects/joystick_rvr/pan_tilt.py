@@ -26,11 +26,11 @@ class PanTilt:
         pz.setOutput(PAN, PAN_CENTER)
         pz.setOutput(TILT, TILT_CENTER)
 
-    async def runLoop(self, gamepad):
+    async def runLoop(self, gamepad, fps = False):
         while True:
             # TODO: exponential smoothing
             panValue = int(interp(
-                -gamepad.z,
+                gamepad.x,
                 [-JOYSTICK_MAX, JOYSTICK_MAX],
                 [PAN_CENTER - PAN_HALF_WIDTH, PAN_CENTER + PAN_HALF_WIDTH]))
             tiltValue = max(
