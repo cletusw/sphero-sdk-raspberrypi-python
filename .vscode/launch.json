@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Joystick RVR",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/projects/joystick_rvr/main.py",
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Python: Current File",
       "type": "python",
       "request": "launch",
