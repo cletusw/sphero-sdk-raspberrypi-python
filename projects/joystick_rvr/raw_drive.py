@@ -1,10 +1,7 @@
-from evdev import InputDevice, categorize, ecodes
 from math import sqrt, atan2, pi
 from numpy import interp
 from os import path
-from signal import signal, SIGINT
 import sys
-from time import sleep, time
 
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '../../')))
 from sphero_sdk import RawMotorModesEnum
