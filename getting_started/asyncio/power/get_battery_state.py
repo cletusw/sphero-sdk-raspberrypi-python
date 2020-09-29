@@ -12,7 +12,8 @@ loop = asyncio.get_event_loop()
 
 rvr = SpheroRvrAsync(
     dal=SerialAsyncDal(
-        loop
+        loop,
+        port_id = '/dev/ttyGS0',
     )
 )
 

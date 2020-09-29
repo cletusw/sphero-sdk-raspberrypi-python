@@ -1181,4 +1181,5 @@ Mask description on BOLT: 32'h0000_00ff: front left sensor 32'h0000_ff00: front 
             timeout (float): maximum time to await a response.
         """
         command_dict = io.release_led_requests(target=1, timeout=timeout)
+        print(command_dict)
         self._dal.send_command(**command_dict)

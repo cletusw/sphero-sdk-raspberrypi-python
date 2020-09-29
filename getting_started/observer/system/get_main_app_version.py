@@ -3,11 +3,15 @@ import sys
 import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
-from sphero_sdk import SpheroRvrObserver
+from sphero_sdk import SpheroRvrObserver, SerialObserverDal
 from sphero_sdk import SpheroRvrTargets
 
 
-rvr = SpheroRvrObserver()
+rvr = SpheroRvrObserver(
+	dal = SerialObserverDal(
+		port_id = "/dev/ttyGS0"
+	)
+)
 
 
 def get_nordic_main_application_version_handler(nordic_main_application_version):

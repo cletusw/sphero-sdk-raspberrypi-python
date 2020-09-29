@@ -3,13 +3,17 @@ import sys
 import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
-from sphero_sdk import SpheroRvrObserver
+from sphero_sdk import SpheroRvrObserver, SerialObserverDal
 from sphero_sdk import Colors
 from sphero_sdk import RvrLedGroups
 
+port = '/dev/ttyGS0'
 
 rvr = SpheroRvrObserver()
 
+rvr._dal = SerialObserverDal(
+    port_id = port
+)
 
 def main():
     """ This program demonstrates how to set a single LED.
@@ -44,6 +48,8 @@ def main():
 
         # Delay to show LEDs change
         time.sleep(1)
+
+        print('Done')
 
     except KeyboardInterrupt:
         print('\nProgram terminated with keyboard interrupt.')
