@@ -14,4 +14,5 @@ pytest = "*"
 twine = "*"
 pyserial = "*"
 pyserial-asyncio = "*"
-
+evdev = "*"
+asyncmock = "*"
