@@ -26,6 +26,8 @@ class PanTilt:
         pz.setOutput(PAN, PAN_CENTER)
         pz.setOutput(TILT, TILT_CENTER)
 
+        print("Pan/Tilt ready")
+
     async def runLoop(self, gamepad, fps = False):
         while True:
             # TODO: exponential smoothing
