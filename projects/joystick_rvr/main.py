@@ -15,6 +15,15 @@ async def main():
         panTilt.runLoop(gamepad, fps = True)
     )
 
+async def cleanup():
+    print("\nCleaning up...")
+    panTilt.cleanup()
+    try:
+        await asyncio.wait_for(rvr.close(), 1.0)
+    except (asyncio.TimeoutError, OSError):
+        pass
+    print("\nDone")
+
 if __name__ == '__main__':
     try:
         loop.run_until_complete(
@@ -22,9 +31,9 @@ if __name__ == '__main__':
         )
 
     except KeyboardInterrupt:
-        print("\nExiting")
-        rvr.close()
-        panTilt.cleanup()
+        asyncio.get_event_loop().run_until_complete(
+            cleanup()
+        )
 
     finally:
         if loop.is_running():

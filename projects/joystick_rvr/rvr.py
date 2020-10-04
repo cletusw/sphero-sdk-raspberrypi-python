@@ -20,8 +20,6 @@ from sphero_sdk import SerialAsyncDal, SpheroRvrAsync, RawMotorModesEnum
 class Rvr:
 
     def __init__(self, loop):
-        self.loop = loop
-
         try:
             self.rvr = SpheroRvrAsync(
                 dal = SerialAsyncDal(
@@ -33,10 +31,8 @@ class Rvr:
             print("Timed out waiting for SpheroRvrAsync. Using mock instead.")
             self.rvr = AsyncMock(SpheroRvrAsync)
 
-    def close(self):
-        self.loop.run_until_complete(
-            self.rvr.close()
-        )
+    async def close(self):
+        await self.rvr.close()
 
     async def isRvrConnected(self):
         try:
