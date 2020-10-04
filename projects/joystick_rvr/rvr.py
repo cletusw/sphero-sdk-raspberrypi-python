@@ -1,30 +1,21 @@
 import asyncio
-from gamepad import JOYSTICK_MAX, DEADBAND_RADIUS
 from mock import AsyncMock
 from os import path
-from raw_drive import drive
-# from fps_drive import fpsDrive
 import sys
 
-MAX_SPEED = 100
-MIN_SPEED = 40
-
-RVR_FRAME_PERIOD_SEC = 0.01
-
-# PORT = '/dev/ttyS0'
-PORT = '/dev/ttyGS0'
+RVR_FRAME_PERIOD_SEC = 0.0025  # 400 Hz
 
 sys.path.append(path.abspath(path.join(path.dirname(__file__), '../../')))
 from sphero_sdk import SerialAsyncDal, SpheroRvrAsync, RawMotorModesEnum
 
 class Rvr:
 
-    def __init__(self, loop):
+    def __init__(self, port, loop):
         try:
             self.rvr = SpheroRvrAsync(
                 dal = SerialAsyncDal(
                     loop,
-                    port_id = PORT,
+                    port_id = port,
                 )
             )
         except asyncio.TimeoutError:
@@ -32,7 +23,10 @@ class Rvr:
             self.rvr = AsyncMock(SpheroRvrAsync)
 
     async def close(self):
-        await self.rvr.close()
+        try:
+            await asyncio.wait_for(self.rvr.close(), 1.0)
+        except (asyncio.TimeoutError, OSError):
+            pass
 
     async def isRvrConnected(self):
         try:
@@ -56,13 +50,12 @@ class Rvr:
                     print("RVR disconnected")
                 await asyncio.sleep(1)
 
-    async def runLoop(self, gamepad):
+    async def runLoop(self, loopFn):
         await self.waitForRvr()
         await self.rvr.reset_yaw()
 
         while True:
-            await drive(gamepad.x, gamepad.y, self.rvr, MIN_SPEED, MAX_SPEED, DEADBAND_RADIUS, JOYSTICK_MAX)
-            # await fpsDrive(gamepad.x, gamepad.y, gamepad.z, self.rvr, MIN_SPEED, MAX_SPEED, DEADBAND_RADIUS, JOYSTICK_MAX)
+            await loopFn()
             await asyncio.sleep(RVR_FRAME_PERIOD_SEC)
             # TODO throttle next line and/or move to separate corountine since it causes troubles running at this high rate
             # await self.waitForRvr(expectAlreadyConnected = True)

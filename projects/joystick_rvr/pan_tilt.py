@@ -28,7 +28,7 @@ class PanTilt:
 
         print("Pan/Tilt ready")
 
-    async def runLoop(self, gamepad, fps = False):
+    async def runLoop(self, gamepad):
         while True:
             # TODO: exponential smoothing
             panValue = int(interp(
